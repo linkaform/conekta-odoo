@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="conekta_form">
+            <input data-remove-me="" name="data_set" t-att-data-action-url="tx_url" type="hidden"/>
+            <input name="merchant" t-att-value="acquirer.company_id.name" type="hidden"/>
+            <input name="amount" t-att-value="amount" type="hidden"/>
+            <input name="return_url" t-att-value="returndata" type="hidden"/>
+            <!--Order Information -->
+            <input name="invoice_num" t-att-value="reference" type="hidden"/>
+            <input name="currency" t-att-value="currency" type="hidden"/>
+            <input name="currency_id" t-att-value="currency_id" type="hidden"/>
+            <!-- Billing Information-->
+            <input name="name" t-att-value="name" type="hidden"/>
+            <input name="address_line1" t-att-value="address_line1" type="hidden"/>
+            <input name="address_city" t-att-value="address_city" type="hidden"/>
+            <input name="address_zip" t-att-value="address_zip" type="hidden"/>
+            <input name="address_country" t-att-value="address_country" type="hidden"/>
+            <input name="phone" t-att-value="phone" type="hidden"/>
+            <input name="email" t-att-value="email" type="hidden"/>
+            <input id="acquirer_conekta" name="acquirer" t-att-value="acquirer.id" type="hidden"/>
+            <input name="conekta_key" t-att-value="acquirer.conekta_publishable_key" type="hidden"/>
+            <script src="/payment_conekta/static/src/js/conekta.js" type="text/javascript">
+            </script>
+        </template>
+        <template id="conekta_s2s_form">
+            <input data-create-route="/payment/conekta/s2s/create_json_3ds" name="data_set" type="hidden"/>
+            <div t-attf-class="mt8 #{'' if bootstrap_formatting else 'o_card_brand_detail'}">
+                <div t-att-class="'form-group col-md-12' if bootstrap_formatting else 'form-group'">
+                    <input class="form-control" data-is-required="true" id="cc_number" name="cc_number" placeholder="Card number" type="tel"/>
+                    <div class="card_placeholder">
+                    </div>
+                    <div class="visa">
+                    </div>
+                    <input name="cc_brand" type="hidden" value=""/>
+                </div>
+                <div t-att-class="'form-group col-md-5' if bootstrap_formatting else 'form-group'">
+                    <input class="form-control" data-is-required="true" id="cc_holder_name" name="cc_holder_name" placeholder="Cardholder name" type="text"/>
+                </div>
+                <div t-att-class="'form-group col-md-3' if bootstrap_formatting else 'form-group'">
+                    <input class="form-control" data-is-required="true" id="cc_expiry" maxlength="7" name="cc_expiry" placeholder="Expires (MM / YY)" type="text"/>
+                </div>
+                <div t-att-class="'form-group col-md-4' if bootstrap_formatting else 'form-group'">
+                    <input class="form-control" data-is-required="true" id="cvc" maxlength="4" name="cvc" placeholder="CVC" type="text"/>
+                </div>
+                <input name="acquirer_id" t-att-value="id" type="hidden"/>
+                <input name="return_url" t-att-value="return_url" t-if="return_url" type="hidden"/>
+                <input name="partner_id" t-att-value="partner_id" t-if="partner_id" type="hidden"/>
+                <input name="csrf_token" t-att-value="request.csrf_token()" type="hidden"/>
+                <div class="clearfix">
+                </div>
+            </div>
+        </template>
+    </data>
+</odoo>
