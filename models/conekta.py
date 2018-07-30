@@ -21,7 +21,7 @@ INT_CURRENCIES = [
 class PaymetConekta(models.Model):
 	_inherit = 'payment.acquirer'
 
-	provider = fields.Selecction(selecction_add=[{'conekta','Conekta'}])
+	provider = fields.Selection(selecction_add=[{'conekta','Conekta'}])
 	conekta_secret_key = fields.Char(required_if_provider='conekta', groups='base.group_user')
 	conekta_publishable_key = fields.Char(required_if_provider='conekta', groups='base.group_user')
 

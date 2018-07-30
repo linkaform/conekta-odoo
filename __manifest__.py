@@ -20,13 +20,14 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','payment'],
+    'depends': ['base','payment','payment.acquirer'],
 
     # always loaded
     'data': [
         # 'security/ir.model.access.csv',
         'views/payment_views.xml',
         'views/payment_conekta_templates.xml',
+        'data/payment_acquirer_data.xml',
     ],
     # only loaded in demonstration mode
     'demo': [
