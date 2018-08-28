@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "conekta",
+    'name': "payment_conekta",
 
     'summary': """
         Short (1 phrase/line) summary of the module's purpose, used as
-        subtitle on modules listing or apps.openerp.com""",
+        subtitle on modules listing or apps.openerp.com. This module depends on
+        External dependensies of Conekta. To install this dependency run on you system
+        pip install conekta==1.0.1""",
 
     'description': """
         Conectar conekta con la aplicacion
@@ -20,13 +22,15 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','payment','payment.acquirer'],
+    'depends': ['base','payment','account'],
+    'external_dependencies' : {"python": ["conekta"]},
 
     # always loaded
     'data': [
         # 'security/ir.model.access.csv',
         'views/payment_views.xml',
         'views/payment_conekta_templates.xml',
+        'views/payment_acquirer_view.xml',
         'data/payment_acquirer_data.xml',
     ],
     # only loaded in demonstration mode
@@ -34,4 +38,5 @@
         #'demo/demo.xml',
     ],
     'installable': True,
+    #'post_init_hook': 'create_missing_journal_for_acquirers',
 }

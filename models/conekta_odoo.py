@@ -22,8 +22,12 @@ class PaymetConekta(models.Model):
 	_inherit = 'payment.acquirer'
 
 	provider = fields.Selection(selecction_add=[{'conekta','Conekta'}])
-	conekta_secret_key = fields.Char(required_if_provider='conekta', groups='base.group_user')
-	conekta_publishable_key = fields.Char(required_if_provider='conekta', groups='base.group_user')
+	conekta_secret_key = fields.Char(required_if_provider='conekta')
+	conekta_publishable_key = fields.Char(required_if_provider='conekta')
+
+
+	# conekta_secret_key_test = fields.Char(required_if_provider='conekta')
+	# conekta_publishable_key_test = fields.Char(required_if_provider='conekta')
 
  	@api.multi
 	def conekta_form_generate_values(self, tx_values):
