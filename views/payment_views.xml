@@ -6,12 +6,13 @@
         <field name="inherit_id" ref="payment.acquirer_form"/>
         <field name="arch" type="xml">
             <xpath expr='//group[@name="acquirer"]' position='after'>
-                <group attrs="{'invisible': [('provider', '!=', 'conekta')]}">
+                <group attrs="{'invisible': [('provider', '!=', 'conekta'), ('environment', '!=', 'test')]}">
                     <field name="conekta_secret_key" password="True"/>
                     <field name="conekta_publishable_key" password="True"/>
-                    <!--
+                </group>
+                <group attrs="{'invisible': [('provider', '!=', 'conekta'), ('environment', '!=', 'prod')]}">
                     <field name="conekta_secret_key_test" password="True"/>
-                    <field name="conekta_publishable_key_test" password="True"/> -->
+                    <field name="conekta_publishable_key_test" password="True"/> 
                 </group>
             </xpath>
         </field>

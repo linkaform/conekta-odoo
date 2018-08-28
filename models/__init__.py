@@ -1,4 +1,4 @@
 # -*- coding: utf-8 -*-
 
-from . import conekta_odoo
-from . import payment_conekta
+from . import payment_acquirer
+from . import account_payment 
