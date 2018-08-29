@@ -67,13 +67,14 @@ class AccountPaymentConekta(models.Model):
 
     def action_validate_invoice_payment(self):
         if self.acquirer.name == 'Conekta':
-            values = super(AccountPaymentConekta, self).action_validate_invoice_payment()
-            print '\n \n \n si pucha esta madre jajajajaj\n \n \n'
             res = self.conekta_payment_validate()
+            if res:
+                 print 'aplica pago'
+                 values = super(AccountPaymentConekta, self).action_validate_invoice_payment()
         else:
            res = super(AccountPaymentConekta, self).action_validate_invoice_payment()
 
-        return res
+        return False
 
     @api.multi
     def conekta_payment_validate(self):
@@ -87,7 +88,7 @@ class AccountPaymentConekta(models.Model):
 
         conekta_object = {
                 "currency":currency,
-                "amount":amount,
+                "amount":amount * 100,
                 "description":description,
                 "reference_id": invoice,
                 "card":card_token,
@@ -104,7 +105,7 @@ class AccountPaymentConekta(models.Model):
         print 'conekta api', dir(conekta)
         print 'elllllllllllllllllll eobjeto \n', conekta_object
         print '\n \n '
-
+        e = False
         try:
           charge  = conekta.Charge.create(conekta_object)
         except conekta.ConektaError as e:
@@ -114,5 +115,7 @@ class AccountPaymentConekta(models.Model):
         if e:
             print e.error_json['message_to_purchaser']
             print 'NOT Charge'
+            self.communication ='Not Charge'
         else:
             print 'udapte status', charge.status
+            return True
