@@ -3,7 +3,7 @@
     <data noupdate="1">
         <record id="payment.paymet_conekta" model="payment.acquirer">
             <field name="name">Conekta</field>
-            <!-- <field name="provider">conekta</field> -->
+            <field name="provider">conekta</field>
             <field name="company_id" ref="base.main_company"/>
             <field name="view_template_id" ref="conekta_form"/>
             <field name="registration_view_template_id" ref="conekta_s2s_form"/>

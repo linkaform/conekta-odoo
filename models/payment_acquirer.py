@@ -22,7 +22,7 @@ class PaymetAcquirer(models.Model):
 
 	_inherit = 'payment.acquirer'
 
-	provider = fields.Selection(selecction_add=[('conekta','Conekta')])
+	provider = fields.Selection(selection_add=[('conekta', 'Conekta')])
 	conekta_secret_key = fields.Char(required_if_provider='conekta', string="Conekta Secret Key")
 	conekta_publishable_key = fields.Char(required_if_provider='conekta', string="Conekta Public Key")
 	conekta_secret_key_test = fields.Char(required_if_provider='conekta', string="Conekta Secret Key Test")
@@ -33,6 +33,7 @@ class PaymetAcquirer(models.Model):
         def _get_providers(self):
              providers = super(PaymentAcquirer, self)._get_providers()
              providers.append(['conekta', 'Conekta'])
+             print '\n providers ',providers
              return providers
 
 

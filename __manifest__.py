@@ -30,8 +30,8 @@
         # 'security/ir.model.access.csv',
         'views/payment_views.xml',
         'views/payment_conekta_templates.xml',
-        'views/payment_acquirer_view.xml',
         'data/payment_acquirer_data.xml',
+        'views/payment_acquirer_view.xml',
     ],
     # only loaded in demonstration mode
     'demo': [
