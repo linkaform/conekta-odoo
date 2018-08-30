@@ -33,7 +33,6 @@ class PaymetAcquirer(models.Model):
         def _get_providers(self):
              providers = super(PaymentAcquirer, self)._get_providers()
              providers.append(['conekta', 'Conekta'])
-             print '\n providers ',providers
              return providers
 
 
@@ -57,7 +56,6 @@ class PaymetAcquirer(models.Model):
 
 		temp_conekta_tx_values['returndata'] = conekta_tx_values.pop('return_url', '')
 		conekta_tx_values.update(temp_conekta_tx_values)
-		print 'conekta_tx_values', conekta_tx_values
 		return conekta_tx_values
 
 	@api.model

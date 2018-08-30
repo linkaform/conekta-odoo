@@ -1,6 +1,6 @@
 # coding: utf-8
 
-import logging
+import logging, datetime
 
 from odoo import models, fields, api
 from odoo.exceptions import UserError, ValidationError
@@ -27,9 +27,7 @@ class AccountPaymentConekta(models.Model):
 
 
     def _set_conketa_key(self):
-        print 'seting up conekta key;;', self.acquirer
         enviroment = self.acquirer.environment
-        print 'enviroment',enviroment
         if enviroment == 'prod':
              CONEKTA_KEY = self.acquirer.conekta_secret_key
              CONEKTA_PUBLIC_KEY = self.acquirer.conekta_publishable_key
@@ -37,7 +35,6 @@ class AccountPaymentConekta(models.Model):
              CONEKTA_KEY = self.acquirer.conekta_secret_key_test
              CONEKTA_PUBLIC_KEY = self.acquirer.conekta_publishable_key_test
 
-        print 'CONEKTA_KEY',CONEKTA_KEY
         conekta.api_key = CONEKTA_KEY
         conekta.api_version = CONEKTA_API_VERSION
 
@@ -47,9 +44,7 @@ class AccountPaymentConekta(models.Model):
     @api.onchange('partner_id')
     def _get_domain(self):
         res = {}
-        # print '-----------------------aqui ----------------\n', self.partner_id.id
         res['domain'] = {'cards_test_50':[("partner_id", "=", self.partner_id.id)]}
-        # print 'Doooooooooooooooooooooooooooooomain',res
         return res
 
     @api.depends('acquirer')
@@ -74,9 +69,7 @@ class AccountPaymentConekta(models.Model):
     def action_validate_invoice_payment(self):
 
         if self.acquirer.name == 'Conekta':
-            # print 'dirrrrrrrrrrr', self.id
             res = self.conekta_payment_validate()
-            # print '\n resssssssssssssssssssssssssssss',res
             if res == True:
                 print 'aplica pago'
                 trans = self._create_payment_transaction()
@@ -104,38 +97,21 @@ class AccountPaymentConekta(models.Model):
         conekta_object = {
                 "currency":currency,
                 "amount":amount * 100,
-                "description":description,
-                "reference_id": invoice,
+                "description":description + ' test',
+                "reference_id": str(invoice) + ' ' + datetime.datetime.now().strftime('%Y-%m-%d %H:%M'),
                 "card":card_token,
                 "pay_method": {'object': 'card_payment'}
         }
 
-        # print 'payload :[{}]'.format(self.request.payload)
-  #       print 'Charge Obj = %s'%(charge_obj)
-  #       charge = 'Cobro conekta'
-  #       res = {}
-  #       e = False
         self._set_conketa_key()
-        print 'conetkta', conekta
-        print 'conekta api', dir(conekta)
-        print 'elllllllllllllllllll eobjeto \n', conekta_object
-        print '\n \n '
-        e = False
         try:
           charge  = conekta.Charge.create(conekta_object)
         except conekta.ConektaError as e:
-            print 'excepte  = %s'%(e)
-            print 'excepte  = %s'%(e.message)
-            print 'excepte  = %s'%(e.error_json['message_to_purchaser'])
-        if e:
-            print e.error_json['message_to_purchaser']
-            print 'NOT Charge'
             self.error = e.error_json['message_to_purchaser']
-            print 'seeeeeeeeelllllllllllllf errorrrrrrrrrrrrrrrrrrr',self.error
             self.communication ='Not Charge'
         else:
-            print 'udapte status', charge.status
             return True
+
 
 
 
