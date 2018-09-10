@@ -4,6 +4,7 @@
         <template id="conekta_form">
             <input data-remove-me="" name="data_set" t-att-data-action-url="tx_url" type="hidden"/>
             <input name="merchant" t-att-value="acquirer.company_id.name" type="hidden"/>
+            <input type='hidden' name='conekta_image' t-att-value="acquirer.conekta_image"/>
             <input name="amount" t-att-value="amount" type="hidden"/>
             <input name="return_url" t-att-value="returndata" type="hidden"/>
             <!--Order Information -->

@@ -15,6 +15,11 @@
                     <field name="conekta_publishable_key_test" password="True"/>
                 </group>
             </xpath>
+            <xpath expr='//group[@name="acquirer_config"]' position='after'>
+                <group attrs="{'invisible': [('provider', '!=', 'conekta')]}">
+                    <field name="conekta_image"/>
+                </group>
+            </xpath>
         </field>
     </record>
 </odoo>

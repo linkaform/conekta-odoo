@@ -27,6 +27,7 @@ class PaymetAcquirer(models.Model):
 	conekta_publishable_key = fields.Char(required_if_provider='conekta', string="Conekta Public Key")
 	conekta_secret_key_test = fields.Char(required_if_provider='conekta', string="Conekta Secret Key Test")
 	conekta_publishable_key_test = fields.Char(required_if_provider='conekta', string="Conekta Public Key Test")
+	conekta_image = fields.Char('Conekta', help='Visita linkaform.com')
 
 
         @api.model

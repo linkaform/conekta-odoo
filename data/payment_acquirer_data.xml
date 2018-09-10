@@ -3,7 +3,8 @@
     <data noupdate="1">
         <record id="payment.paymet_conekta" model="payment.acquirer">
             <field name="name">Conekta</field>
-            <field name="provider">conekta</field>
+            <!-- <field name="provider">conekta</field> -->
+            <field name="image" type="base64" file="payment_conekta/static/img/conekta.jpg"/>
             <field name="company_id" ref="base.main_company"/>
             <field name="view_template_id" ref="conekta_form"/>
             <field name="registration_view_template_id" ref="conekta_s2s_form"/>
@@ -11,6 +12,8 @@
             <field name="pre_msg"><![CDATA[<p>You will be prompt with conekta Payment page for payment information.</p>]]></field>
             <field name="conekta_secret_key">dummy</field>
             <field name="conekta_publishable_key">dummy</field>
+            <field name="conekta_secret_key_test">dummy</field>
+            <field name="conekta_publishable_key_test">dummy</field>
         </record>
     </data>
 </odoo>

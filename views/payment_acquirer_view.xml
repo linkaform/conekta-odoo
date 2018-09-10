@@ -8,7 +8,7 @@
                 <xpath expr="//field[@name='communication']" position="after">
                 	<!-- <field name="partner_id"/> -->
                     <field name="acquirer"/>
-                    <field name="cards_test_50" attrs="{'invisible':[('hide','=', False)]}"/>
+                    <field name="cards_conekta" attrs="{'invisible':[('hide','=', False)]}"/>
                     <field name="payment_transaction_id" attrs="{'invisible':[('hide','=', False)],'readonly':1}"/>
                     <field name="hide" invisible="1" />
                 </xpath>

@@ -21,7 +21,7 @@ class AccountPaymentConekta(models.Model):
     _inherit = 'account.payment'
 
     acquirer = fields.Many2one(comodel_name='payment.acquirer', string='Aquirer')
-    cards_test_50 = fields.Many2one(comodel_name='conekta.credit.card', domain= lambda self:self._get_domain(),string="Conekta Credit Card")
+    cards_conekta = fields.Many2one(comodel_name='conekta.credit.card', domain= lambda self:self._get_domain(),string="Conekta Credit Card")
     hide = fields.Boolean(compute='_hide_cards')
     error = fields.Text()
 
@@ -44,7 +44,7 @@ class AccountPaymentConekta(models.Model):
     @api.onchange('partner_id')
     def _get_domain(self):
         res = {}
-        res['domain'] = {'cards_test_50':[("partner_id", "=", self.partner_id.id)]}
+        res['domain'] = {'cards_conekta':[("partner_id", "=", self.partner_id.id)]}
         return res
 
     @api.depends('acquirer')
@@ -60,9 +60,11 @@ class AccountPaymentConekta(models.Model):
                 'amount': self.amount,
                 'currency_id': self.currency_id.id,
                 'partner_id': self.partner_id.id,
-                'acquirer_id': self.acquirer.id
+                'acquirer_id': self.acquirer.id,
+                'fees': (self.amount * 2.9)/100
             }
         transaction = self.payment_model.create(transaction_model)
+        print 'transaction', transaction
         return transaction
 
 
@@ -71,9 +73,9 @@ class AccountPaymentConekta(models.Model):
         if self.acquirer.name == 'Conekta':
             res = self.conekta_payment_validate()
             if res == True:
-                print 'aplica pago'
                 trans = self._create_payment_transaction()
                 self.payment_transaction_id = trans.id
+                trans.state = 'done'
                 values = super(AccountPaymentConekta, self).action_validate_invoice_payment()
             else:
                 trans = self._create_payment_transaction()
@@ -86,7 +88,7 @@ class AccountPaymentConekta(models.Model):
 
     @api.multi
     def conekta_payment_validate(self):
-        card_token = self.cards_test_50.conekta_card_id
+        card_token = self.cards_conekta.conekta_card_id
         amount = self.amount
         currency = self.currency_id.name
         partner_id = self.partner_id.id
@@ -97,7 +99,7 @@ class AccountPaymentConekta(models.Model):
         conekta_object = {
                 "currency":currency,
                 "amount":amount * 100,
-                "description":description + ' test',
+                "description":description,
                 "reference_id": str(invoice) + ' ' + datetime.datetime.now().strftime('%Y-%m-%d %H:%M'),
                 "card":card_token,
                 "pay_method": {'object': 'card_payment'}

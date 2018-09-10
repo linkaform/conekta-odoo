@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "payment_conekta",
+    'name': "Conekta",
 
     'summary': """
         Short (1 phrase/line) summary of the module's purpose, used as
@@ -37,6 +37,7 @@
     'demo': [
         #'demo/demo.xml',
     ],
+    'images': ['static/description/Logo-Conekta.jpg'],
     'installable': True,
     #'post_init_hook': 'create_missing_journal_for_acquirers',
 }
