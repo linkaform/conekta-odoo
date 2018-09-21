@@ -11,7 +11,6 @@ _logger = logging.getLogger(__name__)
 try:
     import conekta
 except ImportError as err:
-    print 'No se pudo installar el modulo, favor de instalar api de conekta ver README'
     _logger.debug(err)
 
 CONEKTA_API_VERSION = "0.3.0"
@@ -64,7 +63,6 @@ class AccountPaymentConekta(models.Model):
                 'fees': (self.amount * 2.9)/100
             }
         transaction = self.payment_model.create(transaction_model)
-        print 'transaction', transaction
         return transaction
 
 
