@@ -13,7 +13,7 @@ try:
 except ImportError as err:
     _logger.debug(err)
 
-CONEKTA_API_VERSION = "0.3.0"
+# CONEKTA_API_VERSION = "0.3.0"
 
 class AccountPaymentConekta(models.Model):
 
@@ -35,7 +35,7 @@ class AccountPaymentConekta(models.Model):
              CONEKTA_PUBLIC_KEY = self.acquirer.conekta_publishable_key_test
 
         conekta.api_key = CONEKTA_KEY
-        conekta.api_version = CONEKTA_API_VERSION
+        # conekta.api_version = CONEKTA_API_VERSION
 
         return True
 
@@ -91,26 +91,48 @@ class AccountPaymentConekta(models.Model):
         currency = self.currency_id.name
         partner_id = self.partner_id.id
         invoice = self.invoice_ids.number
+        line_items = []
+
+        lines =  self.env['account.invoice.line'].search([('invoice_id', '=' , self.invoice_ids.id)])
+        for item in lines:
+            objeto = {
+              "name": item.name ,
+              "description": item.name ,
+              "unit_price": int(item.price_unit) ,
+              "quantity": int(item.quantity) ,
+            }
+            line_items.append(objeto)
 
         description="Linkaform Factura %s"%invoice
 
         conekta_object = {
-                "currency":currency,
-                "amount":amount * 100,
-                "description":description,
-                "reference_id": str(invoice) + ' ' + datetime.datetime.now().strftime('%Y-%m-%d %H:%M'),
-                "card":card_token,
-                "pay_method": {'object': 'card_payment'}
-        }
+                "line_items": line_items ,
+                "customer_info":{
+                    "name": self.partner_id.name,
+                    "phone": self.partner_id.phone,
+                    "email": self.partner_id.email,
+                    "corporate": self.partner_id.customer,
+                    "vertical_info": {}
+                },
+                "charges": [{
+                  "payment_method":{
+                    "type": "card",
+                    "token_id":card_token
+                  }
+                }],
+                "currency" : currency,
+                "metadata" : {"description" : description}
+              }
 
         self._set_conketa_key()
         try:
-          charge  = conekta.Charge.create(conekta_object)
+            charge  = conekta.Order.create(conekta_object)
         except conekta.ConektaError as e:
-            self.error = e.error_json['message_to_purchaser']
+            self.error = e #.error_json['details'] #[0]['message']
             self.communication ='Not Charge'
         else:
             return True
+
 
 
 
