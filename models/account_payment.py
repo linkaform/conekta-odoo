@@ -1,5 +1,5 @@
 # coding: utf-8
-
+import requests, simplejson, json
 import logging, datetime
 
 from odoo import models, fields, api
@@ -13,7 +13,9 @@ try:
 except ImportError as err:
     _logger.debug(err)
 
-# CONEKTA_API_VERSION = "0.3.0"
+CONEKTA_API_VERSION = "0.3.0"
+
+ambiente = 'conekta'
 
 class AccountPaymentConekta(models.Model):
 
@@ -22,7 +24,7 @@ class AccountPaymentConekta(models.Model):
     acquirer = fields.Many2one(comodel_name='payment.acquirer', string='Aquirer')
     cards_conekta = fields.Many2one(comodel_name='conekta.credit.card', domain= lambda self:self._get_domain(),string="Conekta Credit Card")
     hide = fields.Boolean(compute='_hide_cards')
-    error = fields.Text()
+    # error = fields.Text()
 
 
     def _set_conketa_key(self):
@@ -37,7 +39,7 @@ class AccountPaymentConekta(models.Model):
         conekta.api_key = CONEKTA_KEY
         # conekta.api_version = CONEKTA_API_VERSION
 
-        return True
+        return CONEKTA_KEY
 
     @api.multi
     @api.onchange('partner_id')
@@ -67,7 +69,6 @@ class AccountPaymentConekta(models.Model):
 
 
     def action_validate_invoice_payment(self):
-
         if self.acquirer.name == 'Conekta':
             res = self.conekta_payment_validate()
             if res == True:
@@ -77,7 +78,7 @@ class AccountPaymentConekta(models.Model):
                 values = super(AccountPaymentConekta, self).action_validate_invoice_payment()
             else:
                 trans = self._create_payment_transaction()
-                message = 'Message form your friends at Contekta \n'+self.error
+                message = 'Message form your friends at Contekta \n Servicio no disponible intente mas tarde o contacte al administrador'
                 raise ValidationError(message)
         else:
            res = super(AccountPaymentConekta, self).action_validate_invoice_payment()
@@ -91,51 +92,26 @@ class AccountPaymentConekta(models.Model):
         currency = self.currency_id.name
         partner_id = self.partner_id.id
         invoice = self.invoice_ids.number
-        line_items = []
 
-        lines =  self.env['account.invoice.line'].search([('invoice_id', '=' , self.invoice_ids.id)])
-        for item in lines:
-            objeto = {
-              "name": item.name ,
-              "description": item.name ,
-              "unit_price": int(item.price_unit) ,
-              "quantity": int(item.quantity) ,
-            }
-            line_items.append(objeto)
+        lines =  self.env['lkf.licenses.config'].search([('enviroment', '=', ambiente)])
+        url = lines.host
+        headers = {'Content-type': 'application/json','Authorization': lines.api_key}
 
-        description="Linkaform Factura %s"%invoice
+        conekta_keys = self._set_conketa_key()
+        objeto ={
+            "card_token":card_token,
+            "amount": amount,
+            "currency":currency,
+            "client_id": partner_id,
+            "sale_ref": invoice,
+            "conekta_key": conekta_keys
+        }
 
-        conekta_object = {
-                "line_items": line_items ,
-                "customer_info":{
-                    "name": self.partner_id.name,
-                    "phone": self.partner_id.phone,
-                    "email": self.partner_id.email,
-                    "corporate": self.partner_id.customer,
-                    "vertical_info": {}
-                },
-                "charges": [{
-                  "payment_method":{
-                    "type": "card",
-                    "token_id":card_token
-                  }
-                }],
-                "currency" : currency,
-                "metadata" : {"description" : description}
-              }
+        res = False
 
-        self._set_conketa_key()
-        try:
-            charge  = conekta.Order.create(conekta_object)
-        except conekta.ConektaError as e:
-            self.error = e #.error_json['details'] #[0]['message']
-            self.communication ='Not Charge'
-        else:
-            return True
+        r = requests.post(url,simplejson.dumps(objeto),headers=headers)
 
+        if r.status_code == 200:
+            res =  True
 
-
-
-
-
-
+        return res
