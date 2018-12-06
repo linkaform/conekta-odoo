@@ -24,7 +24,7 @@ class AccountPaymentConekta(models.Model):
     acquirer = fields.Many2one(comodel_name='payment.acquirer', string='Aquirer')
     cards_conekta = fields.Many2one(comodel_name='conekta.credit.card', domain= lambda self:self._get_domain(),string="Conekta Credit Card")
     hide = fields.Boolean(compute='_hide_cards')
-    # error = fields.Text()
+    error = fields.Text(store = False )
 
 
     def _set_conketa_key(self):
@@ -78,7 +78,7 @@ class AccountPaymentConekta(models.Model):
                 values = super(AccountPaymentConekta, self).action_validate_invoice_payment()
             else:
                 trans = self._create_payment_transaction()
-                message = 'Message form your friends at Contekta \n Servicio no disponible intente mas tarde o contacte al administrador'
+                message = 'Message form your friends at Contekta \n' + self.error
                 raise ValidationError(message)
         else:
            res = super(AccountPaymentConekta, self).action_validate_invoice_payment()
@@ -92,6 +92,7 @@ class AccountPaymentConekta(models.Model):
         currency = self.currency_id.name
         partner_id = self.partner_id.id
         invoice = self.invoice_ids.number
+        response = {'data':{}, 'status_code':''}
 
         lines =  self.env['lkf.licenses.config'].search([('enviroment', '=', ambiente)])
         url = lines.host
@@ -112,6 +113,9 @@ class AccountPaymentConekta(models.Model):
         r = requests.post(url,simplejson.dumps(objeto),headers=headers)
 
         if r.status_code == 200:
-            res =  True
-
+            r_data = simplejson.loads(r.content)
+            response['data'] = r_data
+            self.error = response['data']['response']['message']
+            if response['data']['response']['status'] == 'paid':
+                res =  True
         return res
