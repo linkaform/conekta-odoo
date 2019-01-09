@@ -115,7 +115,9 @@ class AccountPaymentConekta(models.Model):
         if r.status_code == 200:
             r_data = simplejson.loads(r.content)
             response['data'] = r_data
-            self.error = response['data']['response']['message']
             if response['data']['response']['status'] == 'paid':
                 res =  True
+            else:
+                self.error = response['data']['response']['message']
+
         return res
