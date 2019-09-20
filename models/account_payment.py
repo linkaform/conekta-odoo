@@ -87,37 +87,52 @@ class AccountPaymentConekta(models.Model):
 
     @api.multi
     def conekta_payment_validate(self):
-        card_token = self.cards_conekta.conekta_card_id
-        amount = self.amount
+        amount = int(self.amount)
         currency = self.currency_id.name
-        partner_id = self.partner_id.id
         invoice = self.invoice_ids.number
-        response = {'data':{}, 'status_code':''}
+        line_items = []
 
-        lines =  self.env['lkf.licenses.config'].search([('enviroment', '=', ambiente)])
-        url = lines.host
-        headers = {'Content-type': 'application/json','Authorization': lines.api_key}
+        lines =  self.env['account.invoice.line'].search([('invoice_id', '=' , self.invoice_ids.id)])
+        # print(dir(self))
+        print(self.invoice_ids)
+        for item in lines:
+            objeto = {
+              "name": item.name ,
+              "unit_price": int(item.price_unit) ,
+              "quantity": int(item.quantity) ,
+            }
+            line_items.append(objeto)
 
-        conekta_keys = self._set_conketa_key()
-        objeto ={
-            "card_token":card_token,
-            "amount": amount,
-            "currency":currency,
-            "client_id": partner_id,
-            "sale_ref": invoice,
-            "conekta_key": conekta_keys
-        }
+        description="Linkaform Factura %s"%invoice
 
-        res = False
+        conekta_object = {
+                "line_items":line_items,
+                "customer_info":{
+                    "name": self.partner_id.name,
+                    "phone": self.partner_id.phone,
+                    "email": self.partner_id.email
+                },
+                "charges": [{
 
-        r = requests.post(url,simplejson.dumps(objeto),headers=headers)
-
-        if r.status_code == 200:
-            r_data = simplejson.loads(r.content)
-            response['data'] = r_data
-            if response['data']['response']['status'] == 'paid':
-                res =  True
-            else:
-                self.error = response['data']['response']['message']
-
-        return res
+                    "payment_method":{
+                        "object": 'card_payment',
+                        "type": 'card',
+                        "name": self.cards_conekta.name,
+                        "last4": self.cards_conekta.last_four_digits,
+                        "brand": self.cards_conekta.type,
+                        "token_id": self.cards_conekta.conekta_card_id
+                  },
+                "currency" : currency
+                }],
+                "currency" : currency,
+                "amount": amount,
+                "metadata" : {"description" : description}
+              }
+        self._set_conketa_key()
+        try:
+            charge  = conekta.Order.create(conekta_object)
+        except conekta.ConektaError as e:
+            self.error = e.error_json['details'][0]['message']
+            self.communication ='Not Charge'
+        else:
+            return True
