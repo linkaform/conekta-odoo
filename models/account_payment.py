@@ -13,7 +13,7 @@ try:
 except ImportError as err:
     _logger.debug(err)
 
-CONEKTA_API_VERSION = "0.3.0"
+CONEKTA_API_VERSION = "2.4.0"
 
 ambiente = 'conekta'
 
@@ -78,7 +78,7 @@ class AccountPaymentConekta(models.Model):
                 values = super(AccountPaymentConekta, self).action_validate_invoice_payment()
             else:
                 trans = self._create_payment_transaction()
-                message = 'Message form your friends at Contekta \n' + self.error
+                message = 'Message form your friends at Contekta \n' + str(self.error)
                 raise ValidationError(message)
         else:
            res = super(AccountPaymentConekta, self).action_validate_invoice_payment()
@@ -91,10 +91,13 @@ class AccountPaymentConekta(models.Model):
         currency = self.currency_id.name
         invoice = self.invoice_ids.number
         line_items = []
+        email = ""
+        if self.partner_id.email:
+            email = self.partner_id.email
+        else:
+            email = self.env['res.partner'].search([('parent_id','=', self.partner_id.id)])[0].email
 
         lines =  self.env['account.invoice.line'].search([('invoice_id', '=' , self.invoice_ids.id)])
-        # print(dir(self))
-        print(self.invoice_ids)
         for item in lines:
             objeto = {
               "name": item.name ,
@@ -110,7 +113,7 @@ class AccountPaymentConekta(models.Model):
                 "customer_info":{
                     "name": self.partner_id.name,
                     "phone": self.partner_id.phone,
-                    "email": self.partner_id.email
+                    "email": email
                 },
                 "charges": [{
 
@@ -135,4 +138,4 @@ class AccountPaymentConekta(models.Model):
             self.error = e.error_json['details'][0]['message']
             self.communication ='Not Charge'
         else:
-            return True
+            return 'No se puede pagar'
